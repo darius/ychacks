@@ -135,14 +135,24 @@ var primopMethods = {
 };
 
 function primAddK(arg1, me, k) {
-    if (typeof(arg1) !== 'number')
-        throw new Error("Type mismatch");
+    if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
     return [k, me.primval + arg1];
 }
-function primSubK(arg1, me, k) { return [k, me.primval - arg1]; }
-function primMulK(arg1, me, k) { return [k, me.primval * arg1]; }
-function primDivK(arg1, me, k) { return [k, me.primval / arg1]; }
-function primEqK(arg1, me, k)  { return [k, me.primval === arg1]; }
+function primSubK(arg1, me, k) {
+    if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
+    return [k, me.primval - arg1];
+}
+function primMulK(arg1, me, k) {
+    if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
+    return [k, me.primval * arg1];
+}
+function primDivK(arg1, me, k) {
+    if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
+    return [k, me.primval / arg1];
+}
+function primEqK(arg1, me, k) {
+    return [k, me.primval === arg1];
+}
 function primLtK(arg1, me, k)  {
     if (typeof(me.primval) !== typeof(arg1))
         throw new Error("Type mismatch");
