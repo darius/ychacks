@@ -1,0 +1,30 @@
+definitions = {name: function_or_block}
+env         = {variable_name: value}
+
+function = Function(left, right, body)        {type: 'function',
+                                               left: 'a', 
+                                               right: 'b',
+                                               body: [chunk1, chunk2]}
+block = Block(body)
+
+chunk = If(test, ifTrue, ifFalse)             {type: 'if',
+                                               test: expr1,
+                                               ifTrue: 'alice',
+                                               ifFalse: 'bob'}
+      | Expression(atoms)                     {type: 'expression',
+                                               atoms: [atom1, atom2, atom3]}
+      | Assignment(target, atoms)             {type: 'assignment',
+                                               target: 'bob',
+                                               atoms: [atom1, atom2, atom3]}
+
+atom = Variable(name)                         {type: 'variable', name: 'thisismyname'}
+     | Literal(value)                         {type: 'literal', value: 42}
+     | Operator(name)                         {type: 'operator', name: 'thisismyname'}
+
+
+So how do we run a program?
+
+Run a whole program:
+trampoline(interpret(block, definitions, env)) ==> result-value or exception
+
+Single-step: to be figured out.
