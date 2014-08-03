@@ -50,8 +50,13 @@ atom = Variable(name)                         {type: 'variable', name: 'thisismy
 
 So how do we run a program?
 
-Run a whole program:
-trampoline(evalExpression(atoms, definitions, env)) ==> result-value or exception
+Call this:
+trampoline(evalChunk(chunk, definitions, env, null)) ==> result_env or exception
+(result_env will have '$result' as a key if the chunk is an
+expression. If the chunk is an 'if' or an assignment, then '$result'
+is not defined, currently.)
+
+
 
 Single-step: to be figured out.
 
