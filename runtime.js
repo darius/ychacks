@@ -140,8 +140,12 @@ function primAddK(arg1, me, k) {
 function primSubK(arg1, me, k) { return [k, me.primval - arg1]; }
 function primMulK(arg1, me, k) { return [k, me.primval * arg1]; }
 function primDivK(arg1, me, k) { return [k, me.primval / arg1]; }
-function primEqK(arg1, me, k)  { return [k, me.primval == arg1]; }
-function primLtK(arg1, me, k)  { return [k, me.primval < arg1]; }
+function primEqK(arg1, me, k)  { return [k, me.primval === arg1]; }
+function primLtK(arg1, me, k)  {
+    if (typeof(me.primval) !== typeof(arg1))
+        throw new Error("Type mismatch");
+    return [k, me.primval < arg1];
+}
 
 var numberMethods = {
     '$is_number': function(_, me, k) { return [k, true]; },
@@ -153,8 +157,20 @@ var numberMethods = {
     '$<':  makePrimopMethod(primLtK),
 };
 
+function primStringCatK(arg1, me, k) {
+    if (typeof(arg1) !== 'string')
+        throw new Error("Type mismatch");
+    return [k, me.primval + arg1];
+}
+
 var stringMethods = {
     '$is_string': function(_, me, k) { return [k, true]; },
+    '$is_empty':  function(ancestor, me, k) { return [k, ancestor === ''] },
+    '$first':     function(ancestor, me, k) { return [k, ancestor[0]] },
+    '$rest':      function(ancestor, me, k) { return [k, ancestor.slice(1)] },
+    '$==':        makePrimopMethod(primEqK),
+    '$<':         makePrimopMethod(primLtK),
+    '$++':        makePrimopMethod(primStringCatK),
 };
 
 var primitiveMethodTables = {
