@@ -47,17 +47,18 @@ function whatsBouncing(k, value) {
 
 
 function evalBlock(block, defs, env, k) {
-    assert(block.type === 'block');
+    assert(block.type === 'block', "Not a block");
     return evalChunks(block.body, defs, env, k);
 }
 
 function evalChunks(chunks, defs, env, k) {
-    assert(0 < chunks.length);
+    assert(0 < chunks.length, "Empty chunks");
     return evalChunk(chunks[0], defs, env,
                      1 === chunks.length ? k : [evalRestChunks, [chunks.slice(1), defs], k]);
+}
 
 function evalRestChunks(newEnv, fv, k) {
-    assert(fv.length == 2);
+    assert(fv.length === 2, "Bad fv");
     var chunks = fv[0], defs = fv[1];
     return evalChunks(chunks, defs, env, k);
 }
@@ -76,7 +77,7 @@ function evalChunk(chunk, defs, env, k) {
 }
 
 function testK(value, fv, k) {
-    assert(fv.length == 3);
+    assert(fv.length === 3, "Bad fv");
     var chunk = fv[0], defs = fv[1], env = fv[2];
     return evalBlock(lookup(defs, value ? chunk.ifTrue : chunk.ifFalse),
                      defs, env, k);
@@ -86,14 +87,20 @@ function envResultK(value, env, k) {
     return [k, extend(env, '$result', value)];
 }
 
+function extend(env, name, value) {
+    var newEnv = Object.create(env);
+    newEnv[name] = value;
+    return newEnv;
+}
+
 function assignK(value, fv, k) {
-    assert(fv.length == 2);
+    assert(fv.length === 2, "Bad fv");
     var target = fv[0], env = fv[2];
     return [k, extend(env, target, value)];
 }
 
 function evalExpr(expr, defs, env, k) {
-    assert(0 < expr.length);
+    assert(0 < expr.length, "Empty expr");
     return evalRestExpr(evalAtom(expr[0], env), expr.slice(1), defs, env, k);
 }
 
@@ -101,22 +108,26 @@ function evalRestExpr(acc, atoms, defs, env, k) {
     if (atoms.length === 0) {
         return [k, acc];
     } else {
-        assert(2 <= atoms.length);
-        var operator = expr[0];
-        assert( operator in defs || operator in primitives)
-        var right = evalAtom(expr[1], env);
+        assert(2 <= atoms.length, "Operator and rhs must come in pairs");
+        var operator = atoms[0];
+        assert(operator.type === 'operator', "Not an operator");
+        console.log(operator);
+        assert(operator.name in defs || operator.name in primitives,
+               "Undefined operator: " + operator.name);
+        var right = evalAtom(atoms[1], env);
         var restAtoms = atoms.slice(2);
-        if (operator in defs) {
-            return evalCall(acc, operator, right, defs, [evalRestK, [], k]);
+        assert(typeof(defs) === 'object', "Defs must be an object");
+        if (operator.name in defs) {
+            return evalCall(acc, operator.name, right, defs, [evalRestK, [], k]);
         } else {
-            return evalRestExpr(evalPrim(acc, operator, right),
+            return evalRestExpr(evalPrim(acc, operator.name, right),
                                 restAtoms, defs, env, k);
         }
     }
 }
 
 function evalRestK(value, fv, k) {
-    assert(fv.length == 3);
+    assert(fv.length === 3, "Bad fv");
     var atoms = fv[0], defs = fv[1], env = fv[2];
     return evalRestExpr(value, atoms, defs, env, k);
 }
@@ -130,13 +141,13 @@ var primitives = {
     '<': function(a, b) { return a < b; },
 };
 
-function evalPrim(acc, operator, right) {
+function evalPrim(left, operator, right) {
     return primitives[operator](left, right);
 }
 
 function evalCall(left, operator, right, defs, k) {
     var def = lookup(defs, operator);
-    assert(def.type === 'function');
+    assert(def.type === 'function', "Def must be a function");
     var env = {};
     env[def.left] = left;
     env[def.right] = right;
