@@ -24,6 +24,7 @@ function trampoline(state, trace) {
     } else {
         while (k !== null) {
             fn = k[0], fv = k[1], k = k[2];
+            console.log('yo', value, fn, fv);
             if (typeof(fn) !== 'function') {
                 console.log("Bad state", fn, fv, k);
                 throw new Error("Not a function: " + fn);
@@ -32,6 +33,7 @@ function trampoline(state, trace) {
             k = state[0], value = state[1];        
         }
     }
+    console.log('final value', value);
     return value;
 }
 
@@ -58,7 +60,7 @@ function evalChunks(chunks, defs, env, k) {
 }
 
 function evalRestChunks(newEnv, fv, k) {
-    assert(fv.length === 2, "Bad fv");
+    assert(fv.length === 2, "Bad fv evalRestChunks");
     var chunks = fv[0], defs = fv[1];
     return evalChunks(chunks, defs, env, k);
 }
@@ -77,7 +79,7 @@ function evalChunk(chunk, defs, env, k) {
 }
 
 function testK(value, fv, k) {
-    assert(fv.length === 3, "Bad fv");
+    assert(fv.length === 3, "Bad fv testK");
     var chunk = fv[0], defs = fv[1], env = fv[2];
     return evalBlock(lookup(defs, value ? chunk.ifTrue : chunk.ifFalse),
                      defs, env, k);
@@ -94,7 +96,7 @@ function extend(env, name, value) {
 }
 
 function assignK(value, fv, k) {
-    assert(fv.length === 2, "Bad fv");
+    assert(fv.length === 2, "Bad fv assignK");
     var target = fv[0], env = fv[2];
     return [k, extend(env, target, value)];
 }
@@ -111,14 +113,13 @@ function evalRestExpr(acc, atoms, defs, env, k) {
         assert(2 <= atoms.length, "Operator and rhs must come in pairs");
         var operator = atoms[0];
         assert(operator.type === 'operator', "Not an operator");
-        console.log(operator);
         assert(operator.name in defs || operator.name in primitives,
                "Undefined operator: " + operator.name);
         var right = evalAtom(atoms[1], env);
         var restAtoms = atoms.slice(2);
         assert(typeof(defs) === 'object', "Defs must be an object");
         if (operator.name in defs) {
-            return evalCall(acc, operator.name, right, defs, [evalRestK, [], k]);
+            return evalCall(acc, operator.name, right, defs, [evalRestK, [restAtoms, defs, env], k]);
         } else {
             return evalRestExpr(evalPrim(acc, operator.name, right),
                                 restAtoms, defs, env, k);
@@ -127,7 +128,7 @@ function evalRestExpr(acc, atoms, defs, env, k) {
 }
 
 function evalRestK(value, fv, k) {
-    assert(fv.length === 3, "Bad fv");
+    assert(fv.length === 3, "Bad fv evalRestK");
     var atoms = fv[0], defs = fv[1], env = fv[2];
     return evalRestExpr(value, atoms, defs, env, k);
 }
@@ -151,7 +152,12 @@ function evalCall(left, operator, right, defs, k) {
     var env = {};
     env[def.left] = left;
     env[def.right] = right;
-    return evalChunks(def.body, defs, env, k);
+    return evalChunks(def.body, defs, env, [unpackResultK, null, k]);
+}
+
+function unpackResultK(value, fv, k) {
+    assert(fv === null, "Bad fv unpackResultK");
+    return [k, lookup(value, '$result')]; // XXX uh, right?
 }
 
 function evalAtom(atom, env) {

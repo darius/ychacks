@@ -34,10 +34,11 @@ function mkOp(name) {
 }
 
 var adding = mkBlock([mkExpression([mkVar('x'), mkOp('+'), mkLit(3), mkOp('-'), mkLit(1)])]);
-var testing = mkIf([mkVar('x'), mkOp('<'), mkLit(0)],
+var testing = mkIf([mkVar('x'), mkOp('<'), mkLit(50)],
                    'front', 'back');
 var testDefs = {
-    front: mkBlock([mkExpression([mkLit(0)])]),
+    double: mkFunction('a', 'b', [mkExpression([mkVar('b'), mkOp('*'), mkLit(2)])]),
+    front: mkBlock([mkExpression([mkLit(0), mkOp('double'), mkLit(3)])]),
     back: adding
 };
 function testme() {
@@ -47,5 +48,5 @@ function testme() {
 //    return trampoline(state);
     var state = evalBlock(mkBlock([testing]), testDefs, env, null);
     console.log('back', state);
-    return trampoline(state, true);
+    return trampoline(state);
 }
