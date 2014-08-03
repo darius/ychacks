@@ -150,6 +150,10 @@ function primDivK(arg1, me, k) {
     if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
     return [k, me.primval / arg1];
 }
+function primPowK(arg1, me, k) {
+    if (typeof(arg1) !== 'number') throw new Error("Type mismatch");
+    return [k, Math.pow(me.primval, arg1)];
+}
 function primEqK(arg1, me, k) {
     return [k, me.primval === arg1];
 }
@@ -165,6 +169,7 @@ var numberMethods = {
     '$-':  makePrimopMethod(primSubK),
     '$*':  makePrimopMethod(primMulK),
     '$/':  makePrimopMethod(primDivK),
+    '$**': makePrimopMethod(primPowK),
     '$==': makePrimopMethod(primEqK),
     '$<':  makePrimopMethod(primLtK),
 };
