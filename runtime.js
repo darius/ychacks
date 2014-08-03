@@ -26,7 +26,7 @@ function trampoline(state, trace) {
 function whatsBouncing(k, value) {
     console.log(':', value);
     while (k) {
-        console.log(k[0], '\t', k[1]);
+        console.log(k[0], ' / ', k[1]);
         k = k[2];
     }
     console.log();

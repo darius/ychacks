@@ -23,9 +23,12 @@ e = {
 
 function evaluate(e, env, k) {
     switch (e.type) {
-    case 'variable':
-        return [k, env.get(e.name)];
-
+    case 'variable': {
+        var value = env[e.name];
+        if (value === undefined)
+            throw new Error("Unbound variable: " + e.name);
+        return [k, value];
+    }
     case 'literal':
         return [k, e.value];
 
@@ -34,8 +37,8 @@ function evaluate(e, env, k) {
 
     case 'extend': {
         var methods = {};
-        Object.getOwnPropertyNames(obj).forEach(function(subexpr, slot) {
-            methods[slot] = makeSelfishMethod(subexpr, e.name, env);
+        Object.getOwnPropertyNames(e.bindings).forEach(function(slot) {
+            methods[slot] = makeSelfishMethod(e.bindings[slot], e.name, env);
         });
         return evaluate(e.base, env, [extend_k, methods, k]);
     }
