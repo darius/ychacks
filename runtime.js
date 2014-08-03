@@ -135,7 +135,9 @@ var primopMethods = {
 };
 
 function primAddK(arg1, me, k) {
-    return [k, me.primval + arg1]; // XXX make sure it's a number first
+    if (typeof(arg1) !== 'number')
+        throw new Error("Type mismatch");
+    return [k, me.primval + arg1];
 }
 function primSubK(arg1, me, k) { return [k, me.primval - arg1]; }
 function primMulK(arg1, me, k) { return [k, me.primval * arg1]; }
