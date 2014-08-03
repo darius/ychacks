@@ -1,11 +1,14 @@
 definitions = {name: function_or_block}
 env         = {variable_name: value}
+              where the special variable '$result' is for the result
+              from the previous chunk.
 
 function = Function(left, right, body)        {type: 'function',
                                                left: 'a', 
                                                right: 'b',
                                                body: [chunk1, chunk2]}
-block = Block(body)
+block = Block(body)                           {type: 'block',
+                                               body: [chunk1, chunk2]}
 
 chunk = If(test, ifTrue, ifFalse)             {type: 'if',
                                                test: expr1,
@@ -25,6 +28,13 @@ atom = Variable(name)                         {type: 'variable', name: 'thisismy
 So how do we run a program?
 
 Run a whole program:
-trampoline(interpret(block, definitions, env)) ==> result-value or exception
+trampoline(evalExpression(atoms, definitions, env)) ==> result-value or exception
 
 Single-step: to be figured out.
+
+
+
+e.g.:
+  [2, '+', 3, '*', 4] ==> [5, '*', 4] ==> [20]
+
+ ['something', 'Factorial', 'n']
