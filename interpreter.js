@@ -43,6 +43,7 @@ function evaluate(e, env, k) {
         return evaluate(e.base, env, [extend_k, methods, k]);
     }
     default:
+        console.log('Not an expression', e);
         throw new Error("Unknown expression type: " + e);
     }
 }

@@ -9,6 +9,7 @@ function trampoline(state, trace) {
     if (trace) {
         while (k !== null) {
             whatsBouncing(k, value);
+            if (k.length !== 3) throw new Error("bad cont!");
             fn = k[0], freeVar = k[1], k = k[2];
             state = fn(value, freeVar, k);
             k = state[0], value = state[1];        
