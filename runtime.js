@@ -17,6 +17,10 @@ function trampoline(state, trace) {
     } else {
         while (k !== null) {
             fn = k[0], freeVar = k[1], k = k[2];
+            if (typeof(fn) !== 'function') {
+                console.log("Bad state", fn, freeVar, k);
+                throw new Error("Not a function: " + fn);
+            }
             state = fn(value, freeVar, k);
             k = state[0], value = state[1];        
         }
@@ -46,13 +50,22 @@ function call(bob, slot, k) {
                 break;
             if (ancestor.parent === null) {
                 method = mirandaMethods[slot];
+                if (method === undefined) {
+                    console.log('For', bob);
+                    throw new Error("Undefined slot: " + slot);
+                }
                 break;
             }
             ancestor = ancestor.parent;
             if (typeof(ancestor) !== 'object') {
                 method = primitiveMethodTables[typeof(ancestor)][slot];
-                if (method === undefined)
+                if (method === undefined) {
                     method = mirandaMethods[slot];
+                    if (method === undefined) {
+                        console.log('For', bob);
+                        throw new Error("Undefined slot: " + slot);
+                    }
+                }
                 break;
             }
         }
@@ -61,6 +74,10 @@ function call(bob, slot, k) {
         method = primitiveMethodTables[typeof(bob)][slot];
         if (method === undefined)
             method = mirandaMethods[slot];
+        if (method === undefined) {
+            console.log('For', bob);
+            throw new Error("Undefined slot: " + slot);
+        }
         return method(bob, bob, k);
     }
 }
