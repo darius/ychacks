@@ -1,26 +1,11 @@
-<script src="runtime.js">
-</script>
-<script src="interpreter.js">
-</script>
+<script src="runtime.js"></script>
+<script src="peglet.js"></script>
+<script src="parse.js"></script>
+<script src="interpreter.js"></script>
+
 <script>
-function mkLit(v) {
-    return {type: 'literal', value: v};
-}
-function mkVar(name) {
-    return {type: 'variable', name: name};
-}
-function mkCall(e, slot) {
-    return {type: 'call', receiver: e, slot: slot};
-}
-function mkExtend(e, name, bindings) {
-    if (typeof(bindings) !== 'object') {
-        console.log('oops', e, bindings);
-        throw new Error("oops");
-    }
-    return {type: 'extend', base: e, name: name, bindings: bindings};
-}
 function mkMethodCall(e, slot, args) {
-    return mkCall(mkExtend(e, null, args), '$()');
+    return mkCall(mkSelflessExtend(e, null, args), '$()'); // wtf? doesn't use slot
 }
 function mkApp1(e, arg) {
     return mkCall(mkExtend(e, null, {'$arg1': arg}), '$()');
