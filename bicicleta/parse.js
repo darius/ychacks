@@ -32,8 +32,8 @@ infix_op    = _ !lone_eq opchars                                    \
 opchars     = ([-~`!@$%^&*+<>?/|\\\\=]+)                            \
 lone_eq     = [=] !opchars                                          \
                                                                     \
-name        = _ ([A-Za-z_][A-Za-z_0-9]*)                            \
-            | _ '([^'\\\\]*)'                                       \
+name        = _ ([A-Za-z_][A-Za-z_0-9]*)    quote                   \
+            | _ '([^'\\\\]*)'               quote                   \
                                                                     \
 newline     = blanks \\n                                            \
 blanks      = blank blanks |                                        \
@@ -46,8 +46,6 @@ function attach(expr, affix) {
     return affix[0].apply(null, [expr].concat(affix.slice(1)));
 }
 
-// TODO: make the mkFoo constructors add the $ instead
-
 var parseProgram = parseGrammar(program_grammar, {
     empty:            function()               { return rootBob; },
     positional:       function()               { return null; },
@@ -55,7 +53,7 @@ var parseProgram = parseGrammar(program_grammar, {
         var result = expr;
         for (var i = 1; i < arguments.length; ++i)
             result = attach(result, arguments[i]);
-        return result;          // XXX checkme
+        return result;
     },
     VarRef:           function(name)           { return {type: 'variable', name: name}; },
     'float':          parseFloat,
@@ -68,16 +66,17 @@ var parseProgram = parseGrammar(program_grammar, {
     defer_extend:     function(name, bindings) { return [mkExtend, name, bindings]; },
     defer_selfless_extend: function(bindings)  { return [mkSelflessExtend, null, bindings]; },
     name_positions:   function() {
-        var result = [];
+        var result = {};
         for (var i = 0; i < arguments.length; ++i) {
             var slot = arguments[i][0];
-            var name = slot === null ? '$arg'+(i+1) : '$'+slot;
-            result.push([name, arguments[i][1]]);
+            var name = slot === null ? '$arg'+(i+1) : slot;
+            result[name] = arguments[i][1];
         }
         return result;
     },
     hug: hug,
     defer_infix:      function(operator, expr) { return [mkInfix, operator, expr]; },
+    quote:            function(name) { return '$'+name; },
 });
 
 function mkLit(v)        { return {type: 'literal', value: v}; }
@@ -85,11 +84,6 @@ function mkVar(name)     { return {type: 'variable', name: name}; }
 function mkCall(e, slot) { return {type: 'call', receiver: e, slot: slot}; }
 
 function mkExtend(e, name, bindings) {
-    // XXX the parser currently makes an array of pairs instead of an 'object'
-    if (typeof(bindings) !== 'object') {
-        console.log('oops', e, bindings);
-        throw new Error("oops");
-    }
     return {type: 'extend', base: e, name: name, bindings: bindings};
 }
 
