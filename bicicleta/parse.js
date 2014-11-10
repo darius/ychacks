@@ -29,7 +29,7 @@ binding     = name _ [=] expr               hug                     \
 infixes     = infix infixes |                                       \
 infix       = infix_op factor               defer_infix             \
 infix_op    = _ !lone_eq opchars                                    \
-opchars     = ([-~`!@$%^&*+<>?/|\\\\=]+)                            \
+opchars     = ([-~`!@$%^&*+<>?/|\\\\=]+)    quote                   \
 lone_eq     = [=] !opchars                                          \
                                                                     \
 name        = _ ([A-Za-z_][A-Za-z_0-9]*)    quote                   \
@@ -94,7 +94,7 @@ function mkFunCall(e, slot, args) {
     return mkCall(mkSelflessExtend(e, null, args), slot);
 }
 
-function mkinfix(left, operator, right) {
+function mkInfix(left, operator, right) {
     //   x + y ==> x.'+'(_=y)
-    return mkFunCall(mkCall(left, operator), '$()', [['$arg1', right]]);
+    return mkFunCall(mkCall(left, operator), '$()', {'$arg1': right});
 }
