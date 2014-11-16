@@ -50,9 +50,18 @@ var buggy_fac0 = mkMethodCall(mkCall(buggy_broken_fac_env_sorry, '$fac'), '$fac'
 
 var fac_4 = mkCall(mkExtend(mkCall(mkExtend(mkLit(rootBob), '$env', {'$fac': mkExtend(mkLit(rootBob), '$fac', {'$()': mkCall(mkExtend(mkCall(mkCall(mkExtend(mkCall(mkCall(mkVar('$fac'), '$n'), '$=='), null, {'$arg1': mkLit(0)}), '$()'), '$if'), null, {'$so': mkLit(1), '$else': mkCall(mkExtend(mkCall(mkCall(mkVar('$fac'), '$n'), '$*'), null, {'$arg1': mkCall(mkExtend(mkCall(mkVar('$env'), '$fac'), null, {'$n': mkCall(mkExtend(mkCall(mkCall(mkVar('$fac'), '$n'), '$-'), null, {'$arg1': mkLit(1)}), '$()')}), '$()')}), '$()')}), '$()')})}), '$fac'), null, {'$n': mkLit(4)}), '$()');
 
+function makeFac(n) {
+    var text = "{env:                                                    \n\
+ fac = {fac:   # fac for factorial                                       \n\
+        '()' = (fac.n == 0).if(so = 1,                                   \n\
+                               else = fac.n * env.fac(n = fac.n-1))}     \n\
+}.fac(n=" + n + ")";
+    return parseProgram(text)[0];
+}
+
 function testMe() {
-    var program = "2+3";
-    return trampoline(evaluate(parseProgram(program)[0], {}, null),
+    var expr = makeFac("2+3");
+    return trampoline(evaluate(expr, {}, null),
                       false);
 }
 

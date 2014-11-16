@@ -47,7 +47,7 @@ function attach(expr, affix) {
 }
 
 var parseProgram = parseGrammar(program_grammar, {
-    empty:            function()               { return rootBob; },
+    empty:            function()               { return mkLit(rootBob); },
     positional:       function()               { return null; },
     attach_all:       function(expr) {
         var result = expr;
