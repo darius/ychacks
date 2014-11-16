@@ -5,19 +5,19 @@ e = {
      type: 'variable|literal|call|extend',
 
   // Only for type='variable':
-     name: 'x'
+     name: '$x'
 
   // Only for type='literal':
      value: 42
 
   // Only for type='call':
      receiver: e1,
-     slot: '+'
+     slot: '$+'
 
   // Only for type='extend':
      base: e2,
-     name: 'me',     //   (optional field, may be null)
-     bindings: {slot1: e1, ...}
+     name: '$me',    // (optional field, may be null)
+     bindings: {$slot1: e1, ...}
     }
 */
 
