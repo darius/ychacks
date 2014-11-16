@@ -3,7 +3,43 @@
 <script src="parse.js"></script>
 <script src="interpreter.js"></script>
 
+<form>
+  <input type="button" value="Run" onclick="testRun()"> (Or press ctrl-Y.)
+  <br><br>
+  <textarea id="codearea" cols="80" rows="45">
+{env: 
+ fac = {fac:   # fac for factorial
+        '()' = (fac.n == 0).if(so = 1,
+                               else = fac.n * env.fac(n = fac.n-1))}
+}.fac(n=2+3)
+  </textarea>
+</form>
+
 <script>
+function testRun() {
+    var body = document.getElementById("codearea").value;
+    try { alert(topLevelEval(body)); }
+    catch (error) { alert(error); }
+}
+
+function topLevelEval(text) {
+    var expr = parseProgram(text)[0];
+    return trampoline(evaluate(expr, {}, null),
+                      false);
+}
+
+document.onkeypress = function(e) {
+    // Intercept ctrl-Y; when you see it, call testRun().
+    if (e.ctrlKey && (e.charCode === 121 || e.charCode === 25)) {
+        testRun();
+        return false;
+    }
+    return true;
+}
+
+
+// Older test scaffolding follows, not currently used.
+
 function mkMethodCall(e, slot, args) {
     return mkCall(mkSelflessExtend(e, null, args), '$()'); // wtf? doesn't use slot
 }
@@ -64,5 +100,4 @@ function testMe() {
     return trampoline(evaluate(expr, {}, null),
                       false);
 }
-
 </script>
